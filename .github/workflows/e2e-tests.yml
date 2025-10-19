@@ -1,0 +1,60 @@
+name: E2E Tests - Cypress
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+
+env:
+  CYPRESS_CACHE_FOLDER: .cache/cypress
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ${{ env.CYPRESS_CACHE_FOLDER }}
+          key: ${{ runner.os }}-node-cypress-${{ hashFiles('package-lock.json', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-cypress-
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build --if-present
+        continue-on-error: true
+      
+      - name: Run E2E Tests
+        run: npx cypress run --spec "joomla_joomla-cms/tests/System/integration/administrator/components/com_banners/Banner.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_banners/Banners.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_banners/Client.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_banners/Clients.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_categories/Categories.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_categories/Category.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_config/Application.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_contact/Contact.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_contact/Contacts.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_content/Article.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_content/Articles.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_fields/Field.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_fields/Fields.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_login/Login.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_media/Media.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_menu/Menu.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_menu/MenuItem.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_menu/Menus.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_modules/Module.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_modules/Modules.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_newsfeeds/Newsfeed.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_newsfeeds/Newsfeeds.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_privacy/Consent.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_tags/Tag.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_tags/Tags.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_users/Group.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_users/Groups.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_users/Level.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_users/Levels.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_users/User.cy.js,joomla_joomla-cms/tests/System/integration/administrator/components/com_users/Users.cy.js,joomla_joomla-cms/tests/System/integration/api/Basic.cy.js,joomla_joomla-cms/tests/System/integration/api/com_banners/Banners.cy.js,joomla_joomla-cms/tests/System/integration/api/com_banners/Categories.cy.js,joomla_joomla-cms/tests/System/integration/api/com_banners/Clients.cy.js,joomla_joomla-cms/tests/System/integration/api/com_config/Application.cy.js,joomla_joomla-cms/tests/System/integration/api/com_config/Content.cy.js,joomla_joomla-cms/tests/System/integration/api/com_contact/Categories.cy.js,joomla_joomla-cms/tests/System/integration/api/com_contact/Contacts.cy.js,joomla_joomla-cms/tests/System/integration/api/com_contact/Fields.cy.js,joomla_joomla-cms/tests/System/integration/api/com_contact/Field_Group.cy.js,joomla_joomla-cms/tests/System/integration/api/com_content/Articles.cy.js,joomla_joomla-cms/tests/System/integration/api/com_content/Categories.cy.js,joomla_joomla-cms/tests/System/integration/api/com_content/Fields.cy.js,joomla_joomla-cms/tests/System/integration/api/com_content/Field_Group.cy.js,joomla_joomla-cms/tests/System/integration/api/com_installer/Request.cy.js,joomla_joomla-cms/tests/System/integration/api/com_media/Adapters.cy.js,joomla_joomla-cms/tests/System/integration/api/com_media/Files.cy.js,joomla_joomla-cms/tests/System/integration/api/com_menus/Administrator.cy.js,joomla_joomla-cms/tests/System/integration/api/com_menus/Site.cy.js,joomla_joomla-cms/tests/System/integration/api/com_menus/SiteMenuItems.cy.js,joomla_joomla-cms/tests/System/integration/api/com_modules/Administrator.cy.js,joomla_joomla-cms/tests/System/integration/api/com_modules/Site.cy.js,joomla_joomla-cms/tests/System/integration/api/com_modules/Types.cy.js,joomla_joomla-cms/tests/System/integration/api/com_newsfeed/Categories.cy.js,joomla_joomla-cms/tests/System/integration/api/com_newsfeed/NewsFeed.cy.js,joomla_joomla-cms/tests/System/integration/api/com_plugins/Plugins.cy.js,joomla_joomla-cms/tests/System/integration/api/com_privacy/Consent.cy.js,joomla_joomla-cms/tests/System/integration/api/com_privacy/Request.cy.js,joomla_joomla-cms/tests/System/integration/api/com_redirect/Redirect.cy.js,joomla_joomla-cms/tests/System/integration/api/com_tags/Tags.cy.js,joomla_joomla-cms/tests/System/integration/api/com_templates/Administrator.cy.js,joomla_joomla-cms/tests/System/integration/api/com_templates/Site.cy.js,joomla_joomla-cms/tests/System/integration/api/com_users/Field.cy.js,joomla_joomla-cms/tests/System/integration/api/com_users/Field_Group.cy.js,joomla_joomla-cms/tests/System/integration/api/com_users/Users.cy.js,joomla_joomla-cms/tests/System/integration/install/Installation.cy.js,joomla_joomla-cms/tests/System/integration/plugins/installer/folderinstaller/FolderInstallerPlugin.cy.js,joomla_joomla-cms/tests/System/integration/plugins/installer/packageinstaller/PackageInstallerPlugin.cy.js,joomla_joomla-cms/tests/System/integration/plugins/installer/urlinstaller/UrlInstallerPlugin.cy.js,joomla_joomla-cms/tests/System/integration/plugins/installer/webinstaller/WebInstallerPlugin.cy.js,joomla_joomla-cms/tests/System/integration/plugins/media-action/crop/CropPlugin.cy.js,joomla_joomla-cms/tests/System/integration/plugins/media-action/resize/ResizePlugin.cy.js,joomla_joomla-cms/tests/System/integration/plugins/media-action/rotate/RotatePlugin.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_contact/Categories.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_contact/Category.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_contact/Contact.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_contact/Featured.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_contact/Form.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_content/Archived.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_content/Article.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_content/Categories.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_content/Category.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_content/Featured.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_newsfeed/Categories.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_newsfeed/Category.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_newsfeed/NewsFeed.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_privacy/Consent.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_privacy/Request.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_tag/Tag.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Login.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Logout.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Profile.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Profile_Edit.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Registration.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Remind.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_users/Reset.cy.js,joomla_joomla-cms/tests/System/integration/site/components/com_wrapper/Wrapper.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_articles_archive/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_articles_categories/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_articles_category/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_articles_latest/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_articles_news/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_articles_popular/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_banners/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_breadcrumbs/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_custom/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_footer/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_login/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_related_items/Default.cy.js,joomla_joomla-cms/tests/System/integration/site/modules/mod_users_latest/Default.cy.js"
+        continue-on-error: false
+      
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+      
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
